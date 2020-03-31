@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>net.haesleinhuepf</groupId>
 		<artifactId>clij-parent-pom</artifactId>
-		<version>1.5.7</version>
+		<version>1.5.8</version>
 		<relativePath />
 	</parent>
 
 	<groupId>net.haesleinhuepf</groupId>
 	<artifactId>clijx-weka_</artifactId>
-	<version>0.26.4</version>
+	<version>0.26.5</version>
 
 	<name>clijx-weka_</name>
 	<description>clijx-weka</description>
