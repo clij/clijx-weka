@@ -8,13 +8,6 @@ Goal is to enable broader applicability of [Weka](https://www.cs.waikato.ac.nz/m
 
 Right now, this is very preliminary.
 
-## Installation intructions
-Download Fiji and activate the `clij` and `clij2` update sites as described [here](https://clij.github.io/clij-docs/installationInFiji). 
-Update Fiji and restart it.
-
-## CLIJx-Weka reference
-The current API reference of CLIJx is available [here](https://clij.github.io/clij2-docs/reference). 
-
 Read more on the [CLIJ Website](https://clij.github.io).
 
 
