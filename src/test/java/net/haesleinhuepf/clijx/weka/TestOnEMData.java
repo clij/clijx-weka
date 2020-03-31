@@ -47,13 +47,13 @@ public class TestOnEMData {
 
         ApplyWekaModel.applyWekaModel(clijx, featureStack, output, modelFilename);
         //clijx.stopWatch("GPU predict2");
-
+/*
         ApplyOCLWekaModel.applyOCLWekaModel(clijx, featureStack, output, modelFilename);
         //clijx.stopWatch("GPU predict1");
 
         ApplyOCLWekaModel.applyOCLWekaModel(clijx, featureStack, output, modelFilename);
         //clijx.stopWatch("GPU predict2");
-
+*/
         clijx.show(output, "output");
 
 

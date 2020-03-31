@@ -16,15 +16,6 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelRegions;
 import net.imglib2.roi.labeling.LabelingType;
-import net.imglib2.trainable_segmention.classification.CompositeInstance;
-import net.imglib2.trainable_segmention.classification.Segmenter;
-import net.imglib2.trainable_segmention.classification.Trainer;
-import net.imglib2.trainable_segmention.clij_random_forest.*;
-import net.imglib2.trainable_segmention.pixel_feature.filter.GroupedFeatures;
-import net.imglib2.trainable_segmention.pixel_feature.filter.SingleFeatures;
-import net.imglib2.trainable_segmention.pixel_feature.settings.ChannelSetting;
-import net.imglib2.trainable_segmention.pixel_feature.settings.FeatureSettings;
-import net.imglib2.trainable_segmention.pixel_feature.settings.GlobalSettings;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
@@ -34,7 +25,6 @@ import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.RealComposite;
-import preview.net.imglib2.loops.LoopBuilder;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -194,8 +184,8 @@ public class WekaDemo {
         //
 
         // Benchmark imglib2-trainable-segmentation
-        if (false)
-        {
+        if (false) {
+/*
             // How can I determine these numbers?
             int numberOfFeatures = 10;
             int numberOfClasses = 2;
@@ -293,7 +283,7 @@ public class WekaDemo {
             durations.put("F predict using imglib2-trainable-segmentation-CLIJ 2", System.currentTimeMillis() - time);
 
             clijx.show(segmentationCl, "segmentation imglib2-t-s-clij");
-
+*/
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -312,6 +302,7 @@ public class WekaDemo {
 
     }
 
+/*
 	// Question: Is it possible to hand over a feature-stack-RAI? If yes, with which dimensionality/shape?
 	// Yes, it's possible, channel order should be XYC or XYZC
 	private RandomAccessibleInterval< UnsignedByteType > Answer(RandomAccessibleInterval< FloatType > featureStack,
@@ -400,4 +391,5 @@ public class WekaDemo {
             return output;
         }
     }
+*/
 }

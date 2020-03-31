@@ -62,7 +62,7 @@ class CLIJxWeka {
     private Integer numberOfFeatures;
     private CLIJ2 clij2;
     private ClearCLBuffer featureStack;
-    private ClearCLBuffer classification;
+    ClearCLBuffer classification;
     private ClearCLBuffer distribution;
 
     private int frf_numberOfTrees = 200;
