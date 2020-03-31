@@ -4,12 +4,21 @@ import hr.irb.fastRandomForest.FastRandomForest;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
+import ij.process.FloatProcessor;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
-import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
 import net.haesleinhuepf.clij2.CLIJ2;
+import net.imglib2.img.array.ArrayImgs;
+import trainableSegmentation.WekaSegmentation;
+import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Evaluation;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instance;
+import weka.core.Instances;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -44,50 +53,38 @@ import java.util.zip.GZIPOutputStream;
  *           Albert Cardona (acardona@ini.phys.ethz.ch)
  *
  */
-public class CLIJxWeka2 extends CLIJxWeka{
-    public CLIJxWeka2(CLIJ2 clij2, ClearCLBuffer featureStack, ClearCLBuffer classification) {
-        super(clij2, featureStack, classification);
-    }
-
-    public CLIJxWeka2(CLIJ2 clij2, ClearCLBuffer featureStack, FastRandomForest classifier, Integer numberOfClasses) {
-        super(clij2, featureStack, classifier, numberOfClasses);
-    }
-
-    public CLIJxWeka2(CLIJ2 clij2, ClearCLBuffer featureStack, String classifierFilename) {
-        super(clij2, featureStack, classifierFilename);
-    }
+@Deprecated
+class CLIJxWeka {
 
 
-/*
     private FastRandomForest classifier;
     private Integer numberOfClasses;
     private Integer numberOfFeatures;
     private CLIJ2 clij2;
     private ClearCLBuffer featureStack;
-    ClearCLBuffer classification;
-    private CLIJMultiChannelImage distribution;
-
+    private ClearCLBuffer classification;
+    private ClearCLBuffer distribution;
 
     private int frf_numberOfTrees = 200;
     private int frf_maxDepth = 0;
     private int frf_numberOfFeatures = 2;
 
-    public CLIJxWeka2(CLIJ2 clij, ClearCLBuffer featureStack, ClearCLBuffer classification) {
-        this.clij2 = clij;
+    public CLIJxWeka(CLIJ2 clij2, ClearCLBuffer featureStack, ClearCLBuffer classification) {
+        this.clij2 = clij2;
         this.featureStack = featureStack;
         this.classification = classification;
     }
 
-    public CLIJxWeka2(CLIJ2 clijx, ClearCLBuffer featureStack, FastRandomForest classifier, Integer numberOfClasses) {
-        this.clij2 = clijx;
+    public CLIJxWeka(CLIJ2 clij2, ClearCLBuffer featureStack, FastRandomForest classifier, Integer numberOfClasses) {
+        this.clij2 = clij2;
         this.featureStack = featureStack;
         this.classifier = classifier;
         this.numberOfClasses = numberOfClasses;
         numberOfFeatures = (int)featureStack.getDepth();
     }
 
-    public CLIJxWeka2(CLIJ2 clijx, ClearCLBuffer featureStack, String classifierFilename) {
-        this.clij2 = clijx;
+    public CLIJxWeka(CLIJ2 clij2, ClearCLBuffer featureStack, String classifierFilename) {
+        this.clij2 = clij2;
         this.featureStack = featureStack;
         loadClassifier(classifierFilename);
     }
@@ -188,7 +185,6 @@ public class CLIJxWeka2 extends CLIJxWeka{
             classes.add("C" + (i + 1));
         }
         System.out.println("Classes: " + classes.size());
-        System.out.println("Classes: " + classes.size());
 
         // add features (represented by slices
         ArrayList<Attribute> attributes = new ArrayList<>();
@@ -201,7 +197,6 @@ public class CLIJxWeka2 extends CLIJxWeka{
 
         return attributes;
     }
-
 
     private static void featureStackToInstance(CLIJ2 clijx, ClearCLBuffer stack, ClearCLBuffer classification, Instances instances) {
         // transpose stack for faster access in feature (Z) direction
@@ -255,41 +250,55 @@ public class CLIJxWeka2 extends CLIJxWeka{
         clijx.release(transposed);
     }
 
-    private static CLIJMultiChannelImage featureStackToDistribution(CLIJ2 clijx, ClearCLBuffer featuresCl, FastRandomForest classifier, int numberOfClasses) {
-        long[] dimensions2d = new long[]{featuresCl.getWidth(), featuresCl.getHeight(), 1};
-        int numberOfFeatures = (int) featuresCl.getDepth();
+    private static ClearCLBuffer featureStackToInstance(CLIJ2 clijx, ClearCLBuffer stack, AbstractClassifier classifier, int numberOfClasses) {
+        // transpose stack for faster access in feature (Z) direction
+        // and convert to float
+        ClearCLBuffer transposed = clijx.create(new long[]{stack.getDepth(), stack.getHeight(), stack.getWidth()}, clijx.Float);
+        clijx.transposeXZ(stack, transposed);
 
-        //clij2.stopWatch("");
+        ImagePlus features = clijx.pull(transposed);
+        ImagePlus classified = new ImagePlus("classified", new FloatProcessor((int)stack.getWidth(), (int)stack.getHeight()));
+        //clij2.pull(classification);
 
-        // Convert classifier to labkit-clij-weka
-        RandomForestPrediction prediction = new RandomForestPrediction(classifier, numberOfClasses, numberOfFeatures);
-        //clij2.stopWatch("Convert classifier");
-
-        // Convert feature stack
-        CLIJMultiChannelImage featureMultiChannelImage = new CLIJMultiChannelImage(clijx, dimensions2d, numberOfFeatures);
-        clijx.copy(featuresCl, featureMultiChannelImage.asClearCLBuffer());
-        //clij2.stopWatch("Convert feature stack");
-
-        // Generate probability distribution
-        CLIJMultiChannelImage distribution = new CLIJMultiChannelImage(clijx, dimensions2d, numberOfClasses);
-        prediction.distribution(clijx, featureMultiChannelImage, distribution);
-        //clij2.stopWatch("Generate probability maps");
-
-        return distribution;
-    }
-
-    //private static ClearCLBuffer featureStackToInstance(CLIJx clij2, ClearCLBuffer featuresCl, FastRandomForest classifier, int numberOfClasses) {
-    private static ClearCLBuffer distributionToInstance(CLIJ2 clijx, CLIJMultiChannelImage distribution) {
-        long[] dimensions2d = new long[]{distribution.asClearCLBuffer().getWidth(), distribution.asClearCLBuffer().getHeight(), 1};
-
-                // classification
-        ClearCLBuffer result = clijx.create(dimensions2d, NativeTypeEnum.Float);
-        CLIJRandomForestKernel.findMax(clijx, distribution, result);
-        //clij2.stopWatch("Classification");
-
-        return result;
+        float[] classes = (float[]) classified.getProcessor().getPixels();
+        //System.out.println("ground truth: " + Arrays.toString(classes));
 
 
+        int numberOfFeatures = (int) stack.getDepth();
+        int width = (int) stack.getWidth();
+        int height = (int) stack.getHeight();
+
+        ArrayList<Attribute> attributes = makeAttributes(numberOfClasses, numberOfFeatures);
+        Instances dataSet = new Instances( "segment", attributes, 1 );
+        dataSet.setClassIndex(attributes.size() - 1);
+
+        System.out.println("Hello1");
+        for (int x = 0; x < width; x++) {
+            features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
+
+            float[] pixels = (float[]) features.getProcessor().getPixels();
+            // see how pixels are addressed here: ((FloatProcessor)features.getProcessor()).getPixel(1,1)
+            for (int y = 0; y < height; y++) {
+                double[] values = new double[numberOfFeatures + 1]; // number of features + ground truth
+                for (int f = 0; f < numberOfFeatures; f++) {
+                    values[f] = pixels[y * numberOfFeatures + f];
+                }
+                //values[values.length - 1] = classes[y * width + x] - 1; // minus 1 because background isn't evaluated
+                //System.out.println("inst: " + Arrays.toString(values));
+                Instance instance = new DenseInstance(1.0, values);
+                instance.setDataset(dataSet);
+                try {
+                    float klass = (float)classifier.classifyInstance(instance) + 1; // plus 1 because background isn't evaluated.
+                    classes[y * width + x] = klass;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+        clijx.release(transposed);
+
+        return clijx.push(classified);
     }
 
 
@@ -303,8 +312,7 @@ public class CLIJxWeka2 extends CLIJxWeka{
             return;
         }
 
-        distribution = featureStackToDistribution(clij2, featureStack, classifier, numberOfClasses);
-        classification = distributionToInstance(clij2, distribution);
+        classification = featureStackToInstance(clij2, featureStack, classifier, numberOfClasses);
     }
 
     public FastRandomForest getClassifier() {
@@ -312,15 +320,31 @@ public class CLIJxWeka2 extends CLIJxWeka{
         return classifier;
     }
 
+    public ClearCLBuffer getDistribution() {
+        return null;
+    }
+
     public ClearCLBuffer getClassification() {
         applyClassifier();
         return classification;
     }
 
-    public ClearCLBuffer getDistribution() {
-        applyClassifier();
-        return distribution.asClearCLBuffer();
+    /*
+    public ClearCLBuffer getClassificationViaOcl() {
+        oclCode
+        classification = featureStackToInstance(clij2, featureStack, classifier, numberOfClasses);
+
+        if (new File(loadModelFilename + ".cl").exists()) {
+            HashMap<String, Object> parameters = new HashMap<>();
+            parameters.put("src_featureStack", srcFeatureStack3D);
+            parameters.put("dst", dstClassificationResult);
+            parameters.put("export_probabilities", 0);
+            clij2.execute(Object.class,loadModelFilename + ".cl", "classify_feature_stack", dstClassificationResult.getDimensions(), dstClassificationResult.getDimensions(), parameters);
+        } else {
+            new IllegalArgumentException("This model hasn't been saved as OCL Model. Try applyWekaModel instead.");
+        }
     }
+    */
 
     public void saveClassifier(String filename) {
         if (classifier == null) {
@@ -333,7 +357,6 @@ public class CLIJxWeka2 extends CLIJxWeka{
         if (new File(filename).getParentFile() != null) {
             new File(filename).getParentFile().mkdirs();
         }
-
 
         try {
             File sFile = new File(filename);
@@ -403,5 +426,4 @@ public class CLIJxWeka2 extends CLIJxWeka{
         }
         this.classification = null;
     }
-    */
 }

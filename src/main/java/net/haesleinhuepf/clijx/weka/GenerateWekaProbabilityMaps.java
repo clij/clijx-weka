@@ -18,7 +18,7 @@ import java.util.HashMap;
  *         March 2020
  */
 
-@Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_generateWekaProbabilityMaps")
+// @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_generateWekaProbabilityMaps")
 public class GenerateWekaProbabilityMaps extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation {
 
     @Override
