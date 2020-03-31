@@ -73,6 +73,7 @@ public class TrainWekaFromTable extends AbstractCLIJ2Plugin implements CLIJMacro
         weka.setNumberOfFeatures(numberOfFeatures);
         weka.setMaxDepth(maxDepth);
         System.out.println("Saved to " + saveModelFilename);
+        weka.getClassifier();
         if (saveModelFilename != null) {
             weka.saveClassifier(saveModelFilename);
         }
