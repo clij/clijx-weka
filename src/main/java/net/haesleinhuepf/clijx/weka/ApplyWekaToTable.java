@@ -65,7 +65,7 @@ public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPl
         result.writeTo(buffer, true);
 
         for (int i = 0; i < resultArray.length; i++) {
-            table.setValue(predictionColumn, i, resultArray[i] + 1 ); //1 because 0 meant leave out during training
+            table.setValue(predictionColumn, i, resultArray[i] );
         }
 
         clij2.release(tableOnGPU);
