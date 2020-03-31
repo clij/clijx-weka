@@ -2,6 +2,7 @@ package net.haesleinhuepf.clijx.weka.gui;
 
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;
@@ -17,7 +18,9 @@ import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij.coremem.enums.NativeTypeEnum;
 import net.haesleinhuepf.clij2.CLIJ2;
 import net.haesleinhuepf.clijx.weka.ApplyWekaModel;
+import net.haesleinhuepf.clijx.weka.ApplyWekaToTable;
 import net.haesleinhuepf.clijx.weka.CLIJxWeka2;
+import net.haesleinhuepf.clijx.weka.TrainWekaFromTable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -196,8 +199,42 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         resetButton.setEnabled(false);
     }
 
+    private ResultsTable removeColumnFromTable(ResultsTable input, String columnNameToRemove) {
+        ResultsTable output = new ResultsTable();
+        for (int i = 0; i < input.size(); i++) {
+            output.incrementCounter();
+            for (String header : input.getHeadings()) {
+                if (header.compareTo(columnNameToRemove) != 0) {
+                    output.addValue(header, input.getValue(header, i));
+                }
+            }
+        }
+        return output;
+    }
+
     private void trainClicked() {
         ResultsTable table = getTable();
+        table.show("Training table");
+
+        CLIJxWeka2 clijxweka = TrainWekaFromTable.trainWekaFromTable(clij2, table, "CLASS", 200, 2, 3);
+
+        table = removeColumnFromTable(table, "CLASS");
+
+        ApplyWekaToTable.applyWekaToTable(clij2, table, "CLASS", clijxweka);
+        table.show("Prediction table");
+
+        resultArray = table.getColumn(table.getColumnIndex("CLASS"));
+        for (int i = 0; i < resultArray.length; i++) {
+            int class_id = (int)resultArray[i];
+            System.out.println("i " + i);
+            Color color = colors.get(class_id);
+            overlay.get(i).setFillColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 128));
+        }
+        exportButton.setEnabled(true);
+        resetButton.setEnabled(true);
+
+
+        /*
 
         ClearCLBuffer temp = clij2.create(table.getHeadings().length, table.getCounter());
         clij2.resultsTableToImage2D(temp, table);
@@ -243,6 +280,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         clij2.release(transposed1);
         clij2.release(transposed2);
         clij2.release(temp);
+         */
     }
 
     private void exportClicked() {
@@ -341,6 +379,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
                 if (roi.getStrokeColor() == Color.white) {
                     roi.setStrokeColor(colors.get(currentClass));
                     roi.setName("" + currentClass);
+                    System.out.println("Name " + roi.getName());
                 } else {
                     roi.setStrokeColor(Color.white);
                     roi.setName(null);
@@ -374,5 +413,12 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         return true;
     }
 
+    public static void main(String[] args) {
+        new ImageJ();
+        ImagePlus imp = IJ.openImage("C:/structure/data/blobs.tif");
+        imp.show();
 
+
+
+    }
 }
