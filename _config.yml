@@ -1,0 +1,8 @@
+title: CLIJx
+logo: /images/clijx_logo.png
+description: CLIJx (experimental)
+show_downloads: false
+google_analytics:
+theme: jekyll-theme-minimal
+plugins:
+  - jekyll-redirect-from
