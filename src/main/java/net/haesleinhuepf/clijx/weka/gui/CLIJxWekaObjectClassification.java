@@ -337,7 +337,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         buttons.get(currentClass - 1).setBackground(colors.get(currentClass));
     }
 
-    private Color getColor(int c) {
+    public static Color getColor(int c) {
         switch((c - 1) % 10) {
             case 0:
                 return Color.green;
