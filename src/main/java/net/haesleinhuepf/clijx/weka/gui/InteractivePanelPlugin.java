@@ -95,12 +95,14 @@ public class InteractivePanelPlugin {
         guiPanel.requestFocus();
     }
 
+    protected int panelHeight = 30;
+
     protected void refresh() {
 //        guiPanel.setSize(550, 30);
   //      guiPanel.setLocation(window.getX() + window.getCanvas().getX() - 1, window.getY() + window.getCanvas().getY() - 1);
 
-        guiPanel.setSize(window.getCanvas().getWidth() + 2, 30);
-        guiPanel.setLocation(window.getX() + window.getCanvas().getX() - 1, window.getY() + window.getCanvas().getY() - 1);
+        guiPanel.setSize(window.getWidth() - 20, panelHeight);
+        guiPanel.setLocation(window.getX() + 10, window.getY() + window.getCanvas().getY() - 1);
 
         guiPanel.validate();
     }
