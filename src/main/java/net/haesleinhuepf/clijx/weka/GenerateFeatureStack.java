@@ -121,7 +121,7 @@ public class GenerateFeatureStack extends AbstractCLIJ2Plugin implements CLIJMac
 
     @Override
     public String getDescription() {
-        return "Generates a feature stack for Trainable Weka Segmentation. Use this terminology to specifiy which stacks should be generated:\n" +
+        return "Generates a feature stack for Trainable Weka Segmentation. \n\nUse this terminology to specifiy which stacks should be generated:\n" +
                 "* \"original\" original slice\n" +
                 "* \"GaussianBlur=s\" Gaussian blurred image with sigma s\n" +
                 "* \"LaplacianOfGaussian=s\" Laplacian of Gaussian blurred image with sigma s\n" +

@@ -50,7 +50,7 @@ public class ApplyWekaModel extends AbstractCLIJ2Plugin implements CLIJMacroPlug
 
     @Override
     public String getDescription() {
-        return "Applies a Weka model using functionality of Fijis Trainable Weka Segmentation plugin.\n" +
+        return "Applies a Weka model using functionality of Fijis Trainable Weka Segmentation plugin. \n\n" +
                 "It takes a 3D feature stack (e.g. first plane original image, second plane blurred, third plane edge image)" +
                 "and applies a pre-trained a Weka model. Take care that the feature stack has been generated in the same" +
                 "way as for training the model!";

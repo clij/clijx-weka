@@ -120,7 +120,7 @@ public class TrainWekaFromTable extends AbstractCLIJ2Plugin implements CLIJMacro
 
     @Override
     public String getDescription() {
-        return "Trains a Weka model using functionality of Fijis Trainable Weka Segmentation plugin.\n" +
+        return "Trains a Weka model using functionality of Fijis Trainable Weka Segmentation plugin. \n\n" +
                 "It takes the given Results Table, sorts its columns alphabetically as extracted features (rows correspond to feature vectors) and a " +
                 "given column name containing the ground truth " +
                 "to train a Weka model. This model will be saved to disc.\n" +

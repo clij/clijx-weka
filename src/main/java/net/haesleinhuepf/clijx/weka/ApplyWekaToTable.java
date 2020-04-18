@@ -88,7 +88,7 @@ public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPl
 
     @Override
     public String getDescription() {
-        return "Applies a Weka model using functionality of Fijis Trainable Weka Segmentation plugin.\n" +
+        return "Applies a Weka model using functionality of Fijis Trainable Weka Segmentation plugin. \n\n" +
                 "It takes a Results Table, sorts its columns by name alphabetically and uses it as extracted features (rows correspond to feature vectors) " +
                 "and applies a pre-trained a Weka model. Take care that the table has been generated in the same" +
                 "way as for training the model!";

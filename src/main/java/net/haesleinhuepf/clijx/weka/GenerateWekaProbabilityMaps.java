@@ -59,7 +59,7 @@ public class GenerateWekaProbabilityMaps extends AbstractCLIJ2Plugin implements 
 
     @Override
     public String getDescription() {
-        return "Applies a Weka model which was saved as OpenCL file. Train your model with trainWekaModel to save it as OpenCL file.\n" +
+        return "Applies a Weka model which was saved as OpenCL file. \n\nTrain your model with trainWekaModel to save it as OpenCL file.\n" +
                 "It takes a 3D feature stack and applies a pre-trained a Weka model to produce probability maps for all classes. \n" +
                 "Take care that the feature stack has been generated in the same way as for training the model!";
     }

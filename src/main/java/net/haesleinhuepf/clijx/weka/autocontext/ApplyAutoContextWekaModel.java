@@ -92,7 +92,7 @@ public class ApplyAutoContextWekaModel extends AbstractCLIJ2Plugin implements CL
 
     @Override
     public String getDescription() {
-        return "Trains a Weka model using functionality of Fijis Trainable Weka Segmentation plugin.\n" +
+        return "Trains a Weka model using functionality of Fijis Trainable Weka Segmentation plugin. \n\n" +
                 "It generates a 3D feature stack as described in GenerateFeatureStack" +
                 "and trains a Weka model. This model will be saved to disc.\n" +
                 "The given groundTruth image is supposed to be a label map where pixels with value 1 represent class 1, " +
