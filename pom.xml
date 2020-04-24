@@ -59,14 +59,14 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/clij/clij</connection>
-        <developerConnection>scm:git:git@github.com/clij/clij</developerConnection>
+		<connection>scm:git:git://github.com/clij/clijx-weka</connection>
+        <developerConnection>scm:git:git@github.com/clij/clijx-weka</developerConnection>
         <tag>HEAD</tag>
-		<url>https://github.com/clij/clij</url>
+		<url>https://github.com/clij/clijx-weka</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/clij/clij/issues</url>
+		<url>https://github.com/clij/clijx-weka/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>None</system>
@@ -76,8 +76,8 @@
 		<package-name>net.haesleinhuepf</package-name>
 		<license.licenseName>bsd_3</license.licenseName>
 		<license.copyrightOwners>Robert Haase, MPI CBG</license.copyrightOwners>
-		<imagej.app.directory>C:/programs/fiji-win64/Fiji.app/</imagej.app.directory>
-		<!--<imagej.app.directory>/home/rhaase/programs/fiji/Fiji.app/</imagej.app.directory>-->
+		<scijava.app.directory>C:/programs/fiji-win64/Fiji.app/</scijava.app.directory>
+		<!--<scijava.app.directory>/home/rhaase/programs/fiji/Fiji.app/</scijava.app.directory>-->
 	</properties>
 
 	<dependencies>
@@ -120,18 +120,14 @@
 
 	<repositories>
 		<repository>
+			<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
+		<repository>
 			<id>clij</id>
 			<url>http://dl.bintray.com/haesleinhuepf/clij</url>
 		</repository>
 	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<id>bintray-haesleinhuepf-snapshots</id>
-			<name>bintray-snapshots</name>
-			<url>https://api.bintray.com/maven/haesleinhuepf/clij/clijx-weka_/;publish=1</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<plugins>
@@ -145,5 +141,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
