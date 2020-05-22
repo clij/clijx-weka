@@ -7,6 +7,9 @@ import ij.ImagePlus;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.Roi;
+import ij.gui.WaitForUserDialog;
+import ij.io.OpenDialog;
+import ij.io.SaveDialog;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.filter.PlugInFilter;
@@ -90,6 +93,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
 
     Button exportButton;
     Button resetButton;
+    Button saveButton;
 
     private void buildGUI() {
         final ImageWindow window = inputImp.getWindow();
@@ -180,6 +184,30 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         }
         guiPanel.add(new Label(" "));
 
+
+        {
+            Button loadButton = new Button("Load");
+            loadButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    loadClicked();
+                }
+            });
+            guiPanel.add(loadButton);
+        }
+
+        {
+            saveButton = new Button("Save");
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    saveClicked();
+                }
+            });
+            guiPanel.add(saveButton);
+            saveButton.setEnabled(false);
+        }
+
         /*
         int width = 0;
         for (int i = 0; i < guiPanel.getComponentCount(); i++) {
@@ -187,6 +215,37 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         }*/
 
         refresh();
+    }
+
+    private void saveClicked() {
+        if (clijxweka == null) {
+            new WaitForUserDialog("Error", "No trained classifier found.").show();
+            return;
+        }
+        JFileChooser jfc = new JFileChooser();
+        jfc.setDialogType(JFileChooser.SAVE_DIALOG);
+        jfc.showDialog(guiPanel, "Save");
+        if (jfc.getSelectedFile() == null) {
+            return;
+        }
+        clijxweka.saveClassifier(jfc.getSelectedFile().toString());
+    }
+
+    private void loadClicked() {
+        JFileChooser jfc = new JFileChooser();
+        jfc.setDialogType(JFileChooser.OPEN_DIALOG);
+        int ret = jfc.showDialog(guiPanel, "Load");
+        if (jfc.getSelectedFile() == null) {
+            return;
+        }
+        ResultsTable table = getTable();
+        table.show("Training table");
+
+        clijxweka = ApplyWekaToTable.applyWekaToTable(clij2, table, "CLASS_PREDICTION", jfc.getSelectedFile().toString());
+
+        table = removeColumnFromTable(table, "CLASS_PREDICTION");
+
+        apply(table, clijxweka);
     }
 
     private void resetClicked() {
@@ -197,6 +256,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         inputImp.updateAndDraw();
         exportButton.setEnabled(false);
         resetButton.setEnabled(false);
+        saveButton.setEnabled(false);
     }
 
     private ResultsTable removeColumnFromTable(ResultsTable input, String columnNameToRemove) {
@@ -212,14 +272,19 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         return output;
     }
 
+    CLIJxWeka2 clijxweka = null;
     private void trainClicked() {
         ResultsTable table = getTable();
         table.show("Training table");
 
-        CLIJxWeka2 clijxweka = TrainWekaFromTable.trainWekaFromTable(clij2, table, "CLASS", 200, 2, 3);
+        clijxweka = TrainWekaFromTable.trainWekaFromTable(clij2, table, "CLASS", 200, 2, 3);
 
         table = removeColumnFromTable(table, "CLASS");
 
+        apply(table, clijxweka);
+    }
+
+    private void apply(ResultsTable table, CLIJxWeka2 clijxweka) {
         ApplyWekaToTable.applyWekaToTable(clij2, table, "CLASS", clijxweka);
         table.show("Prediction table");
 
@@ -232,7 +297,7 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
         }
         exportButton.setEnabled(true);
         resetButton.setEnabled(true);
-
+        saveButton.setEnabled(true);
 
         /*
 
@@ -290,6 +355,15 @@ public class CLIJxWekaObjectClassification extends InteractivePanelPlugin implem
             table.addValue("CLASS_PREDICTION", resultArray[i]);
         }
         table.show("Results");
+
+        RoiManager rm = RoiManager.getInstance();
+        if (rm == null) {
+            rm = new RoiManager();
+        }
+        for (int i = 0; i < overlay.size(); i++) {
+            rm.addRoi(overlay.get(i));
+        }
+
     }
 
     private ResultsTable getTable(){

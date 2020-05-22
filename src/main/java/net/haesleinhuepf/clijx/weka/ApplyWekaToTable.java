@@ -27,16 +27,17 @@ public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPl
         String predictionColumn = (String) args[0];
         String loadModelFilename = (String) args[1];
 
-        return applyWekaToTable(getCLIJ2(), table, predictionColumn, loadModelFilename);
+        applyWekaToTable(getCLIJ2(), table, predictionColumn, loadModelFilename);
+        return true;
     }
 
-    public static boolean applyWekaToTable(CLIJ2 clij2, ResultsTable table, String predictionColumn, String loadModelFilename) {
+    public static CLIJxWeka2 applyWekaToTable(CLIJ2 clij2, ResultsTable table, String predictionColumn, String loadModelFilename) {
         return applyWekaToTable(clij2, table, predictionColumn, null, loadModelFilename);
     }
-    public static boolean applyWekaToTable(CLIJ2 clij2, ResultsTable table, String predictionColumn, CLIJxWeka2 clijxWeka) {
+    public static CLIJxWeka2 applyWekaToTable(CLIJ2 clij2, ResultsTable table, String predictionColumn, CLIJxWeka2 clijxWeka) {
         return applyWekaToTable(clij2, table, predictionColumn, clijxWeka, null);
     }
-    private static boolean applyWekaToTable(CLIJ2 clij2, ResultsTable table, String predictionColumn, CLIJxWeka2 clijxWeka, String loadModelFilename) {
+    private static CLIJxWeka2 applyWekaToTable(CLIJ2 clij2, ResultsTable table, String predictionColumn, CLIJxWeka2 clijxWeka, String loadModelFilename) {
         ResultsTable sendToGPUTable = TrainWekaFromTable.reformatTable(table, null);
 
 
@@ -73,7 +74,7 @@ public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPl
         clij2.release(featureStack);
 
 
-        return true;
+        return clijxWeka;
     }
 
     @Override
