@@ -7,6 +7,7 @@ import net.haesleinhuepf.clij.macro.CLIJOpenCLProcessor;
 import net.haesleinhuepf.clij.macro.documentation.OffersDocumentation;
 import net.haesleinhuepf.clij2.AbstractCLIJ2Plugin;
 import net.haesleinhuepf.clij2.CLIJ2;
+import net.haesleinhuepf.clij2.utilities.IsCategorized;
 import org.jocl.CL;
 import org.scijava.plugin.Plugin;
 
@@ -19,7 +20,7 @@ import java.util.HashMap;
  */
 
 // @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_generateWekaProbabilityMaps")
-public class GenerateWekaProbabilityMaps extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation {
+public class GenerateWekaProbabilityMaps extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized {
 
     @Override
     public boolean executeCL() {
@@ -67,5 +68,10 @@ public class GenerateWekaProbabilityMaps extends AbstractCLIJ2Plugin implements 
     @Override
     public String getAvailableForDimensions() {
         return "2D";
+    }
+
+    @Override
+    public String getCategories() {
+        return "Machine Learning, Segmentation";
     }
 }

@@ -7,6 +7,7 @@ import net.haesleinhuepf.clij.macro.CLIJOpenCLProcessor;
 import net.haesleinhuepf.clij.macro.documentation.OffersDocumentation;
 import net.haesleinhuepf.clij2.AbstractCLIJ2Plugin;
 import net.haesleinhuepf.clij2.CLIJ2;
+import net.haesleinhuepf.clij2.utilities.IsCategorized;
 import net.haesleinhuepf.clij2.utilities.ProcessableInTiles;
 import net.haesleinhuepf.clijx.weka.*;
 import org.scijava.plugin.Plugin;
@@ -17,7 +18,7 @@ import org.scijava.plugin.Plugin;
  */
 
 @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_trainAutoContextWekaModel")
-public class TrainAutoContextWekaModel extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, ProcessableInTiles {
+public class TrainAutoContextWekaModel extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, ProcessableInTiles, IsCategorized {
 
     @Override
     public boolean executeCL() {
@@ -112,6 +113,12 @@ public class TrainAutoContextWekaModel extends AbstractCLIJ2Plugin implements CL
     @Override
     public String getAvailableForDimensions() {
         return "2D";
+    }
+
+
+    @Override
+    public String getCategories() {
+        return "Machine Learning, Segmentation";
     }
 
 }

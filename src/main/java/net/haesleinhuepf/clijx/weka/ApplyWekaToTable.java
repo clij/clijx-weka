@@ -8,6 +8,7 @@ import net.haesleinhuepf.clij.macro.CLIJOpenCLProcessor;
 import net.haesleinhuepf.clij.macro.documentation.OffersDocumentation;
 import net.haesleinhuepf.clij2.AbstractCLIJ2Plugin;
 import net.haesleinhuepf.clij2.CLIJ2;
+import net.haesleinhuepf.clij2.utilities.IsCategorized;
 import org.scijava.plugin.Plugin;
 
 import java.nio.FloatBuffer;
@@ -19,7 +20,7 @@ import java.nio.FloatBuffer;
  */
 
 @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_applyWekaToTable")
-public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation {
+public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized {
 
     @Override
     public boolean executeCL() {
@@ -98,6 +99,11 @@ public class ApplyWekaToTable extends AbstractCLIJ2Plugin implements CLIJMacroPl
     @Override
     public String getAvailableForDimensions() {
         return "2D";
+    }
+
+    @Override
+    public String getCategories() {
+        return "Machine Learning, Segmentation";
     }
 
 }
