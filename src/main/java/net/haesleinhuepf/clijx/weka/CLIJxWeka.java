@@ -1,9 +1,7 @@
 package net.haesleinhuepf.clijx.weka;
 
 import hr.irb.fastRandomForest.FastRandomForest;
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Prefs;
+import ij.*;
 import ij.process.FloatProcessor;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij2.CLIJ2;
@@ -223,6 +221,8 @@ class CLIJxWeka {
 
         System.out.println("Number of features: " + numberOfFeatures);
 
+
+
         for (int x = 0; x < width; x++) {
             features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
 
@@ -250,6 +250,27 @@ class CLIJxWeka {
         clijx.release(transposed);
     }
 
+    public static void main(String[] args) {
+        String image_filename = "src/test/resources/blobs.tif";
+        String model_filename = "src/test/resources/blobs.model";
+        String features = "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5";
+
+        new ImageJ();
+        ImagePlus imp = IJ.openImage(image_filename);
+
+        CLIJ2 clij2 = CLIJ2.getInstance();
+        ClearCLBuffer input = clij2.push(imp);
+        ClearCLBuffer output = clij2.create(input);
+
+        for (int i = 0; i < 10; i ++) {
+            long time = System.currentTimeMillis();
+            BinaryWekaPixelClassifier.binaryWekaPixelClassifier(clij2, input, output, features, model_filename);
+            System.out.println("Duration " + (System.currentTimeMillis() - time));
+        }
+
+        clij2.show(output, "res");
+    }
+
     private static ClearCLBuffer featureStackToInstance(CLIJ2 clijx, ClearCLBuffer stack, AbstractClassifier classifier, int numberOfClasses) {
         // transpose stack for faster access in feature (Z) direction
         // and convert to float
@@ -257,6 +278,7 @@ class CLIJxWeka {
         clijx.transposeXZ(stack, transposed);
 
         ImagePlus features = clijx.pull(transposed);
+        ImageStack featureImageStack = features.getImageStack();
         ImagePlus classified = new ImagePlus("classified", new FloatProcessor((int)stack.getWidth(), (int)stack.getHeight()));
         //clij2.pull(classification);
 
@@ -272,11 +294,37 @@ class CLIJxWeka {
         Instances dataSet = new Instances( "segment", attributes, 1 );
         dataSet.setClassIndex(attributes.size() - 1);
 
-        System.out.println("Hello1");
-        for (int x = 0; x < width; x++) {
-            features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
+        System.out.println("Hello object " + width);
+        long time = System.currentTimeMillis();
 
-            float[] pixels = (float[]) features.getProcessor().getPixels();
+        Thread[] threads = new Thread[width];
+        Classificator[] classificators = new Classificator[width];
+
+        for (int x = 0; x < width; x++) {
+            //features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
+
+            float[] pixels = (float[]) featureImageStack.getProcessor(x + 1).getPixels();
+            float[] klasses = new float[height];
+
+            classificators[x] = new Classificator(pixels, klasses, width, height, dataSet, classifier, numberOfFeatures);
+            threads[x] = new Thread(classificators[x]);
+            threads[x].start();
+        }
+
+        for (int x = 0; x < width; x++) {
+            try {
+                threads[x].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (int x = 0; x < width; x++) {
+            float[] klasses = classificators[x].getClasses();
+            for (int y = 0; y < height; y++) {
+                classes[y * width + x] = klasses[y];
+            }
+            /*
             // see how pixels are addressed here: ((FloatProcessor)features.getProcessor()).getPixel(1,1)
             for (int y = 0; y < height; y++) {
                 double[] values = new double[numberOfFeatures + 1]; // number of features + ground truth
@@ -294,11 +342,58 @@ class CLIJxWeka {
                     e.printStackTrace();
                 }
 
-            }
+            }*/
         }
+        System.out.println("inner duration " + (System.currentTimeMillis() - time));
         clijx.release(transposed);
 
         return clijx.push(classified);
+    }
+
+    static class Classificator implements Runnable {
+        private final Instances dataSet;
+        private final AbstractClassifier classifier;
+        private final int numberOfFeatures;
+        float[] features;
+        float[] classes;
+        private final int width;
+        private final int height;
+
+        public Classificator(float[] features, float[] classes, int width, int height, Instances dataSet, AbstractClassifier classifier, int numberOfFeatures) {
+            this.features = features;
+            this.classes = classes;
+            this.width = width;
+            this.height = height;
+            this.dataSet = dataSet;
+            this.classifier = classifier;
+            this.numberOfFeatures = numberOfFeatures;
+        }
+
+        @Override
+        public void run() {
+            // see how pixels are addressed here: ((FloatProcessor)features.getProcessor()).getPixel(1,1)
+            for (int y = 0; y < height; y++) {
+                double[] values = new double[numberOfFeatures + 1]; // number of features + ground truth
+                for (int f = 0; f < numberOfFeatures; f++) {
+                    values[f] = features[y * numberOfFeatures + f];
+                }
+                //values[values.length - 1] = classes[y * width + x] - 1; // minus 1 because background isn't evaluated
+                //System.out.println("inst: " + Arrays.toString(values));
+                Instance instance = new DenseInstance(1.0, values);
+                instance.setDataset(dataSet);
+                try {
+                    float klass = (float)classifier.classifyInstance(instance) + 1; // plus 1 because background isn't evaluated.
+                    classes[y] = klass;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
+        public float[] getClasses() {
+            return classes;
+        }
     }
 
 
