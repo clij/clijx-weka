@@ -2,6 +2,7 @@ package net.haesleinhuepf.clijx.weka;
 
 import hr.irb.fastRandomForest.FastRandomForest;
 import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.process.FloatProcessor;
@@ -223,6 +224,8 @@ class CLIJxWeka {
 
         System.out.println("Number of features: " + numberOfFeatures);
 
+
+
         for (int x = 0; x < width; x++) {
             features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
 
@@ -250,6 +253,27 @@ class CLIJxWeka {
         clijx.release(transposed);
     }
 
+    public static void main(String[] args) {
+        String image_filename = "src/test/resources/blobs.tif";
+        String model_filename = "src/test/resources/blobs.model";
+        String features = "original gaussianblur=1 gaussianblur=5 sobelofgaussian=1 sobelofgaussian=5";
+
+        new ImageJ();
+        ImagePlus imp = IJ.openImage(image_filename);
+
+        CLIJ2 clij2 = CLIJ2.getInstance();
+        ClearCLBuffer input = clij2.push(imp);
+        ClearCLBuffer output = clij2.create(input);
+
+        for (int i = 0; i < 10; i ++) {
+            long time = System.currentTimeMillis();
+            BinaryWekaPixelClassifier.binaryWekaPixelClassifier(clij2, input, output, features, model_filename);
+            System.out.println("Duration " + (System.currentTimeMillis() - time));
+        }
+
+        clij2.show(output, "res");
+    }
+
     private static ClearCLBuffer featureStackToInstance(CLIJ2 clijx, ClearCLBuffer stack, AbstractClassifier classifier, int numberOfClasses) {
         // transpose stack for faster access in feature (Z) direction
         // and convert to float
@@ -272,7 +296,8 @@ class CLIJxWeka {
         Instances dataSet = new Instances( "segment", attributes, 1 );
         dataSet.setClassIndex(attributes.size() - 1);
 
-        System.out.println("Hello1");
+        System.out.println("Hello object " + width);
+        long time = System.currentTimeMillis();
         for (int x = 0; x < width; x++) {
             features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
 
@@ -296,6 +321,7 @@ class CLIJxWeka {
 
             }
         }
+        System.out.println("inner duration " + (System.currentTimeMillis() - time));
         clijx.release(transposed);
 
         return clijx.push(classified);
