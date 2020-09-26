@@ -1,10 +1,7 @@
 package net.haesleinhuepf.clijx.weka;
 
 import hr.irb.fastRandomForest.FastRandomForest;
-import ij.IJ;
-import ij.ImageJ;
-import ij.ImagePlus;
-import ij.Prefs;
+import ij.*;
 import ij.process.FloatProcessor;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
 import net.haesleinhuepf.clij2.CLIJ2;
@@ -281,6 +278,7 @@ class CLIJxWeka {
         clijx.transposeXZ(stack, transposed);
 
         ImagePlus features = clijx.pull(transposed);
+        ImageStack featureImageStack = features.getImageStack();
         ImagePlus classified = new ImagePlus("classified", new FloatProcessor((int)stack.getWidth(), (int)stack.getHeight()));
         //clij2.pull(classification);
 
@@ -298,14 +296,31 @@ class CLIJxWeka {
 
         System.out.println("Hello object " + width);
         long time = System.currentTimeMillis();
-        for (int x = 0; x < width; x++) {
-            features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
 
-            float[] pixels = (float[]) features.getProcessor().getPixels();
+        Thread[] threads = new Thread[width];
+        Classificator[] classificators = new Classificator[width];
+
+        for (int x = 0; x < width; x++) {
+            //features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
+
+            float[] pixels = (float[]) featureImageStack.getProcessor(x + 1).getPixels();
             float[] klasses = new float[height];
 
-            new Classificator(pixels, klasses, width, height, dataSet, classifier, numberOfFeatures).run();
+            classificators[x] = new Classificator(pixels, klasses, width, height, dataSet, classifier, numberOfFeatures);
+            threads[x] = new Thread(classificators[x]);
+            threads[x].start();
+        }
 
+        for (int x = 0; x < width; x++) {
+            try {
+                threads[x].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (int x = 0; x < width; x++) {
+            float[] klasses = classificators[x].getClasses();
             for (int y = 0; y < height; y++) {
                 classes[y * width + x] = klasses[y];
             }
@@ -374,6 +389,10 @@ class CLIJxWeka {
                 }
 
             }
+        }
+
+        public float[] getClasses() {
+            return classes;
         }
     }
 
