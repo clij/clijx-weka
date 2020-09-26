@@ -302,6 +302,14 @@ class CLIJxWeka {
             features.setZ(x + 1); // the feature stack is XZ - transposed; its Z corresponds to original image width
 
             float[] pixels = (float[]) features.getProcessor().getPixels();
+            float[] klasses = new float[height];
+
+            new Classificator(pixels, klasses, width, height, dataSet, classifier, numberOfFeatures).run();
+
+            for (int y = 0; y < height; y++) {
+                classes[y * width + x] = klasses[y];
+            }
+            /*
             // see how pixels are addressed here: ((FloatProcessor)features.getProcessor()).getPixel(1,1)
             for (int y = 0; y < height; y++) {
                 double[] values = new double[numberOfFeatures + 1]; // number of features + ground truth
@@ -319,12 +327,54 @@ class CLIJxWeka {
                     e.printStackTrace();
                 }
 
-            }
+            }*/
         }
         System.out.println("inner duration " + (System.currentTimeMillis() - time));
         clijx.release(transposed);
 
         return clijx.push(classified);
+    }
+
+    static class Classificator implements Runnable {
+        private final Instances dataSet;
+        private final AbstractClassifier classifier;
+        private final int numberOfFeatures;
+        float[] features;
+        float[] classes;
+        private final int width;
+        private final int height;
+
+        public Classificator(float[] features, float[] classes, int width, int height, Instances dataSet, AbstractClassifier classifier, int numberOfFeatures) {
+            this.features = features;
+            this.classes = classes;
+            this.width = width;
+            this.height = height;
+            this.dataSet = dataSet;
+            this.classifier = classifier;
+            this.numberOfFeatures = numberOfFeatures;
+        }
+
+        @Override
+        public void run() {
+            // see how pixels are addressed here: ((FloatProcessor)features.getProcessor()).getPixel(1,1)
+            for (int y = 0; y < height; y++) {
+                double[] values = new double[numberOfFeatures + 1]; // number of features + ground truth
+                for (int f = 0; f < numberOfFeatures; f++) {
+                    values[f] = features[y * numberOfFeatures + f];
+                }
+                //values[values.length - 1] = classes[y * width + x] - 1; // minus 1 because background isn't evaluated
+                //System.out.println("inst: " + Arrays.toString(values));
+                Instance instance = new DenseInstance(1.0, values);
+                instance.setDataset(dataSet);
+                try {
+                    float klass = (float)classifier.classifyInstance(instance) + 1; // plus 1 because background isn't evaluated.
+                    classes[y] = klass;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 
 
