@@ -149,4 +149,19 @@ public class GenerateFeatureStack extends AbstractCLIJ2Plugin implements CLIJMac
         return "Machine Learning, Segmentation";
     }
 
+    public static String[] allFeatures() {
+        return new String[]{
+                "*original",
+                "gaussianblur",
+                "*gradientx",
+                "*gradienty",
+                "minimum",
+                "maximum",
+                "mean",
+                "entropy",
+                "laplacianofgaussian",
+                "sobelofgaussian"
+        };
+    }
+
 }
