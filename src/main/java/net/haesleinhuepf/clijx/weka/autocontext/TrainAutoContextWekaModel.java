@@ -39,7 +39,7 @@ public class TrainAutoContextWekaModel extends AbstractCLIJ2Plugin implements CL
         return "Image input, Image ground_truth, String model_filename, String feature_definitions, Number numberOfAutoContextIterations, Number numberOfTrees, Number numberOfFeatures, Number maxDepth";
     }
 
-    public static boolean trainAutoContextWekaModelWithOptions(CLIJ2 clij2, ClearCLBuffer input2D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename, String featureDefinitions, int numberOfAutoContextIterations, Integer numberOfTrees, Integer numberOfFeatures, Integer maxDepth) {
+    public static boolean trainAutoContextWekaModelWithOptions(CLIJ2 clij2, ClearCLBuffer input2D, ClearCLBuffer srcGroundTruth2D, String saveModelFilename, String featureDefinitions, Integer numberOfAutoContextIterations, Integer numberOfTrees, Integer numberOfFeatures, Integer maxDepth) {
 
         ClearCLBuffer feature_stack = GenerateFeatureStack.generateFeatureStack(clij2, input2D, featureDefinitions);
         int numberOfGeneratedFeatures = (int) feature_stack.getDepth();
