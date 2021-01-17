@@ -8,13 +8,14 @@ import net.haesleinhuepf.clij.macro.CLIJOpenCLProcessor;
 import net.haesleinhuepf.clij.macro.documentation.OffersDocumentation;
 import net.haesleinhuepf.clij2.AbstractCLIJ2Plugin;
 import net.haesleinhuepf.clij2.CLIJ2;
+import net.haesleinhuepf.clij2.utilities.HasClassifiedInputOutput;
 import net.haesleinhuepf.clij2.utilities.IsCategorized;
 import org.scijava.plugin.Plugin;
 
 import java.io.File;
 
 @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_wekaLabelClassifier")
-public class WekaLabelClassifier extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized {
+public class WekaLabelClassifier extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized, HasClassifiedInputOutput {
 
     private static CLIJxWeka2 clijxWeka2 = null;
     private static String last_loaded_filename = "";
@@ -111,4 +112,14 @@ public class WekaLabelClassifier extends AbstractCLIJ2Plugin implements CLIJMacr
         last_loaded_filename = "";
     }
 
+
+    @Override
+    public String getInputType() {
+        return "Label Image";
+    }
+
+    @Override
+    public String getOutputType() {
+        return "Label Image";
+    }
 }
