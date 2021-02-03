@@ -119,7 +119,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
                 count_vector.close();
             });
 
-            computers.put("average_distance_n_closest_neighbors", () -> {
+            computers.put("average_distance_n_closest_neighbors=2", () -> {
                 clij2.averageDistanceOfNClosestPoints(distance_matrix, measurement_vector, numericParameter);
             });
             computers.put("average_distance_of_touching_neighbors", () -> {
@@ -130,7 +130,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
             });
 
             // ---------------------------------------------------------------------------------------------------------
-            computers.put("local_maximum_average_distance_n_closest_neighbors", () -> {
+            computers.put("local_maximum_average_distance_n_closest_neighbors=2", () -> {
                 clij2.averageDistanceOfNClosestPoints(distance_matrix, temp_vector, numericParameter);
                 clij2.maximumOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
@@ -143,7 +143,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
                 clij2.maximumOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
             // ---------------------------------------------------------------------------------------------------------
-            computers.put("local_minimum_average_distance_n_closest_neighbors", () -> {
+            computers.put("local_minimum_average_distance_n_closest_neighbors=2", () -> {
                 clij2.averageDistanceOfNClosestPoints(distance_matrix, temp_vector, numericParameter);
                 clij2.minimumOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
@@ -156,7 +156,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
                 clij2.minimumOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
             // ---------------------------------------------------------------------------------------------------------
-            computers.put("local_mean_average_distance_n_closest_neighbors", () -> {
+            computers.put("local_mean_average_distance_n_closest_neighbors=2", () -> {
                 clij2.averageDistanceOfNClosestPoints(distance_matrix, temp_vector, numericParameter);
                 clij2.meanOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
@@ -169,7 +169,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
                 clij2.meanOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
             // ---------------------------------------------------------------------------------------------------------
-            computers.put("local_standard_deviation_average_distance_n_closest_neighbors", () -> {
+            computers.put("local_standard_deviation_average_distance_n_closest_neighbors=2", () -> {
                 clij2.averageDistanceOfNClosestPoints(distance_matrix, temp_vector, numericParameter);
                 clij2.standardDeviationOfTouchingNeighbors(temp_vector, touch_matrix, measurement_vector);
             });
