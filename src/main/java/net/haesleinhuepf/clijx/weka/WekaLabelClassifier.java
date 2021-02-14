@@ -93,7 +93,7 @@ public class WekaLabelClassifier extends AbstractCLIJ2Plugin implements CLIJMacr
 
     @Override
     public String getDescription() {
-        return "Applies a pre-trained CLIJx-Weka model to an image and a corresponding label map. \n\n" +
+        return "Applies a pre-trained CLIJx-Weka model to an image and a corresponding label map to classify labeled objects. \n\n" +
                 "" +
                 "Make sure that the handed over feature list is the same used while training the model.";
     }
