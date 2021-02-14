@@ -10,7 +10,9 @@ import net.haesleinhuepf.clij2.CLIJ2;
 import net.haesleinhuepf.clij2.plugins.StatisticsOfLabelledPixels;
 import org.scijava.plugin.Plugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -50,7 +52,6 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
             StatisticsOfLabelledPixels.STATISTICS_ENTRY.STANDARD_DEVIATION_INTENSITY,
             StatisticsOfLabelledPixels.STATISTICS_ENTRY.PIXEL_COUNT
     };
-
 
     @Override
     public boolean executeCL() {
@@ -106,15 +107,27 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
         private LabelFeatureGenerator(CLIJ2 clij2, ClearCLBuffer input, ClearCLBuffer label_map, String featureDefinitions) {
             // ---------------------------------------------------------------------------------------------------------
             // todo: not sure where to put this
+            computers.put("MEAN_OF_LAPLACIAN", () -> {
+                ClearCLBuffer laplacian = clij2.create(input);
+                clij2.laplaceBox(input, laplacian);
+                ResultsTable table = new ResultsTable();
+                clij2.statisticsOfLabelledPixels(laplacian, label_map, table);
+                clij2.pushResultsTableColumn(measurement_vector, table, "MEAN_INTENSITY");
+                laplacian.close();
+            });
+
             computers.put("average_touch_pixel_count", () -> {
-                ClearCLBuffer touch_count_matrix = clij2.create(distance_matrix);
-                clij2.generateTouchCountMatrix(label_map, touch_count_matrix);
-                ClearCLBuffer sum_vector = clij2.create(touch_count_matrix.getWidth(), 1L);
+                ClearCLBuffer touch_count_matrix2 = clij2.create(distance_matrix);
+                clij2.generateTouchCountMatrix(label_map, touch_count_matrix2);
+
+                ClearCLBuffer touch_count_matrix = clij2.create(distance_matrix.getWidth() - 1, distance_matrix.getHeight() - 1);
+                ClearCLBuffer sum_vector = clij2.create(touch_count_matrix.getWidth(), 1, 1);
                 clij2.sumYProjection(touch_count_matrix, sum_vector);
-                ClearCLBuffer count_vector = clij2.create(touch_count_matrix.getWidth(), 1L);
+                ClearCLBuffer count_vector = clij2.create(touch_count_matrix.getWidth(), 1, 1);
                 clij2.countTouchingNeighbors(touch_matrix, count_vector);
                 clij2.divideImages(count_vector, sum_vector, measurement_vector);
                 touch_count_matrix.close();
+                touch_count_matrix2.close();
                 sum_vector.close();
                 count_vector.close();
             });
@@ -233,7 +246,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
             System.out.println("Determining " + featureDefinition);
 
             String[] temp = featureDefinition.split("=");
-            String featureName = temp[0];
+            String featureName = temp[0].toLowerCase();
             String parameter = temp.length > 1 ? temp[1] : "0";
             numericParameter = Double.parseDouble(parameter);
 
@@ -249,7 +262,7 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
             }
 
             for (String key : computers.keySet()) {
-                if (key.compareTo(featureDefinition.toLowerCase()) == 0) {
+                if (key.toLowerCase().compareTo(featureDefinition) == 0) {
                     computers.get(key).compute();
                     //temp_vector.close();
                     clij2.print(measurement_vector);
@@ -308,11 +321,8 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
         String description = "Generates a feature image for Trainable Weka Segmentation. \n\n" +
                 "Use this terminology to specify which features should be generated:\n";
 
-        for (StatisticsOfLabelledPixels.STATISTICS_ENTRY supported_stats_feature : supported_features) {
-            description = description + "* " + supported_stats_feature.toString() + "\n";
-        }
-        for (String feature : new LabelFeatureGenerator().getLabelPropertyNames()) {
-            description = description + "* " + feature.toString() + "\n";
+        for (String feature : allFeatures()) {
+            description = description + "* " + feature + "\n";
         }
         description = description +
                 "\n" +
@@ -333,20 +343,22 @@ public class GenerateLabelFeatureImage extends AbstractCLIJ2Plugin implements CL
     public static String[] allFeatures() {
         Set<String> set1 = new LabelFeatureGenerator().getLabelPropertyNames();
 
-        String[] result = new String[set1.size() + supported_features.length];
+        ArrayList<String> result = new ArrayList<>();
+        //String[] result = new String[set1.size() + supported_features.length];
 
-        int count = 0;
         for (StatisticsOfLabelledPixels.STATISTICS_ENTRY entry : supported_features) {
-            result[count] = entry.toString();
-            count ++;
+            result.add(entry.toString());
         }
 
         for (String entry : set1) {
-            result[count] = entry;
-            count ++;
+            if (!(entry.endsWith("=2") || entry.toLowerCase().startsWith("local"))) {
+                result.add(entry);
+            }
         }
 
-        return result;
+        String[] array = new String[result.size()];
+        result.toArray(array);
+        return array;
     }
 
     @Override
